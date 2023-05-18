@@ -26,7 +26,7 @@ public class BlockchainService {
 
     @Transactional
     public void addBlock(Transaction transaction) {
-//        validateTransaction(transaction);
+        validateTransaction(transaction);
 
         Block newBlock = createNewBlock(transaction);
         updateBalances(transaction);
@@ -37,10 +37,17 @@ public class BlockchainService {
     public BigInteger getBalance(String address) {
         LOGGER.info("Calculating balance for address: {}", address);
         List<Transaction> transactions = transactionRepository.findAllByReceiver(address);
-        BigInteger balance = transactions.stream().map(Transaction::getValue).reduce(ZERO, BigInteger::add);
+
+        if (transactions.isEmpty()) {
+            LOGGER.info("No transactions found for address: {}", address);
+            return BigInteger.ZERO;
+        }
+
+        BigInteger balance = transactions.stream().map(Transaction::getValue).reduce(BigInteger.ZERO, BigInteger::add);
         LOGGER.info("Calculated balance for address {}: {}", address, balance);
         return balance;
     }
+
 
     public List<Block> getChain() {
         LOGGER.info("Retrieving blockchain");
@@ -75,6 +82,9 @@ public class BlockchainService {
         Block block = new Block();
         block.setTransaction(transaction);
         block.setHash(calculateBlockHash());
+
+        transactionRepository.save(transaction);
+
         return blockRepository.save(block);
     }
 
