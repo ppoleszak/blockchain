@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/blockchain
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddlAuto: create
+    showSql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    databasePlatform: org.hibernate.dialect.PostgreSQLDialect
